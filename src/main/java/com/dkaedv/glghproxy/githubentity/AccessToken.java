@@ -4,9 +4,9 @@ public class AccessToken {
 	private String access_token;
 	private String scope = "repo";
 	private String token_type = "bearer";
-	
+
 	public AccessToken() {}
-	
+
 	public AccessToken(String access_token) {
 		this.access_token = access_token;
 	}
@@ -19,7 +19,7 @@ public class AccessToken {
 	public String getToken_type() {
 		return token_type;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "access_token=" + access_token + "&scope=" + scope + "&token_type=" + token_type;

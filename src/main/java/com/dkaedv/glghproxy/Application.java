@@ -9,6 +9,7 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 
+
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer {
 
@@ -16,12 +17,12 @@ public class Application extends SpringBootServletInitializer {
 		System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
 		SpringApplication.run(Application.class, args);
 	}
-	
+
 	@Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
         return application.sources(Application.class);
     }
-	
+
 	@Bean
 	public Jackson2ObjectMapperBuilder jacksonBuilder() {
 		Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
@@ -29,7 +30,7 @@ public class Application extends SpringBootServletInitializer {
 			.indentOutput(true)
 			.simpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
 			.propertyNamingStrategy(new PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy());
-		
+
 		return builder;
 	}
 }

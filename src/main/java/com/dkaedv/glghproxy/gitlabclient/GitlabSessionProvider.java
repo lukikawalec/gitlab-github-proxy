@@ -15,15 +15,15 @@ public class GitlabSessionProvider {
 
 	@Value("${gitlabUrl}")
 	private String gitlabUrl;
-	
+
 	public GitlabAPI connect(String authorizationHeader) {
-		String token = authorizationHeader.replaceAll("token ", "");
-		
+		String token = authorizationHeader.replaceAll("token ", "").replaceAll("Bearer ", "");
+
 		GitlabAPI api = GitlabAPI.connect(gitlabUrl, token, TokenType.ACCESS_TOKEN);
 		api.ignoreCertificateErrors(true);
 		return api;
 	}
-	
+
 	@PostConstruct
 	public void logUrl() {
 		LOG.info("Using Gitlab Base URL: " + gitlabUrl);

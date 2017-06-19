@@ -48,10 +48,10 @@ public class ReposController {
 
 	@Autowired
 	private GitlabSessionProvider gitlab;
-	
+
 	@Value("${gitlabUrl}")
 	private String gitlabUrl;
-	
+
 	@Autowired
 	ObjectMapper objectMapper;
 
@@ -64,13 +64,13 @@ public class ReposController {
 			@RequestParam String page,
 			@RequestHeader("Authorization") String authorization
 			) throws IOException {
-		
+
 		GitlabAPI api = gitlab.connect(authorization);
 		List<GitlabBranch> glbranches = api.getBranches(namespace + "/" + repo);
-		
-		return GitlabToGithubConverter.convertBranches(glbranches);		
+
+		return GitlabToGithubConverter.convertBranches(glbranches);
 	}
-	
+
 	@RequestMapping("/{namespace}/{repo}/commits/{sha}")
 	@ResponseBody
 	public RepositoryCommit getCommit(
@@ -79,7 +79,7 @@ public class ReposController {
 			@PathVariable String sha,
 			@RequestHeader("Authorization") String authorization
 			) throws IOException {
-		
+
 		GitlabAPI api = gitlab.connect(authorization);
 		GitlabCommit glcommit = api.getCommit(namespace + "/" + repo, sha);
 		List<GitlabCommitDiff> gldiffs = api.getCommitDiffs(namespace + "/" + repo, sha);
@@ -87,7 +87,7 @@ public class ReposController {
 
 		return GitlabToGithubConverter.convertCommit(glcommit, gldiffs, users.size() >= 1 ? users.get(0) : null);
 	}
-	
+
 	@RequestMapping("/{namespace}/{repo}/events")
 	@ResponseBody
 	public List<Event> getEvents(
@@ -98,7 +98,7 @@ public class ReposController {
 
 		GitlabAPI api = gitlab.connect(authorization);
 		List<GitlabMergeRequest> glmergerequests = api.getMergeRequests(namespace + "/" + repo);
-		
+
 		return GitlabToGithubConverter.convertMergeRequestsToEvents(glmergerequests, gitlabUrl, namespace, repo);
 	}
 
@@ -117,7 +117,7 @@ public class ReposController {
 
 		GitlabAPI api = gitlab.connect(authorization);
 		List<GitlabMergeRequest> glmergerequests = api.getMergeRequests(namespace + "/" + repo);
-				
+
 		List<PullRequest> mergeRequests = GitlabToGithubConverter.convertMergeRequests(glmergerequests, gitlabUrl, namespace, repo);
 		//LOG.info(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(mergeRequests));
 		return mergeRequests;
@@ -134,11 +134,11 @@ public class ReposController {
 
 		GitlabAPI api = gitlab.connect(authorization);
 		GitlabMergeRequest mergeRequest = findMergeRequestByProjectAndIid(namespace, repo, id, api);
-		
+
 		return GitlabToGithubConverter.convertMergeRequest(mergeRequest, gitlabUrl, namespace, repo);
 	}
 
-	
+
 	@RequestMapping("/{namespace}/{repo}/pulls/{id}/commits")
 	@ResponseBody
 	public List<RepositoryCommit> getCommitsOnPullRequest(
@@ -149,9 +149,9 @@ public class ReposController {
 			) throws IOException {
 
 		GitlabAPI api = gitlab.connect(authorization);
-		GitlabMergeRequest mergeRequest = findMergeRequestByProjectAndIid(namespace, repo, id, api);		
+		GitlabMergeRequest mergeRequest = findMergeRequestByProjectAndIid(namespace, repo, id, api);
 		List<GitlabCommit> commits = api.getCommits(mergeRequest);
-		
+
 		return GitlabToGithubConverter.convertCommits(commits);
 	}
 
@@ -162,12 +162,12 @@ public class ReposController {
 				return mergeRequest;
 			}
 		}
-		
+
 		return null;
 	}
 
 	/**
-	 * In Github, each Merge Request is automatically also an issue. Therefore we return its comments here. 
+	 * In Github, each Merge Request is automatically also an issue. Therefore we return its comments here.
 	 */
 	@RequestMapping("/{namespace}/{repo}/issues/{id}/comments")
 	@ResponseBody
@@ -179,9 +179,9 @@ public class ReposController {
 			) throws IOException {
 
 		GitlabAPI api = gitlab.connect(authorization);
-		GitlabMergeRequest mergeRequest = findMergeRequestByProjectAndIid(namespace, repo, id, api);		
+		GitlabMergeRequest mergeRequest = findMergeRequestByProjectAndIid(namespace, repo, id, api);
 		List<GitlabNote> notes = api.getNotes(mergeRequest);
-		
+
 		return GitlabToGithubConverter.convertComments(notes);
 	}
 
@@ -211,7 +211,7 @@ public class ReposController {
 
 		GitlabAPI api = gitlab.connect(authorization);
 		List<GitlabProjectHook> hooks = api.getProjectHooks(namespace + "/" + repo);
-		
+
 		return GitlabToGithubConverter.convertHooks(hooks);
 	}
 
@@ -228,11 +228,13 @@ public class ReposController {
 		GitlabAPI api = gitlab.connect(authorization);
 		GitlabProjectHook createdHook = api.addProjectHook(
 				namespace + "/" + repo,
-				hook.getConfig().get("url"), 
-				hook.getEvents().contains("push"), 
+				hook.getConfig().get("url"),
+				hook.getEvents().contains("push"),
 				false,
-				hook.getEvents().contains("pull_request"));
-		
+				hook.getEvents().contains("pull_request"),
+				false,
+				false);
+
 		return GitlabToGithubConverter.convertHook(createdHook);
 	}
 
